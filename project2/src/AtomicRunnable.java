@@ -21,9 +21,9 @@ public class AtomicRunnable implements Runnable {
 
     @Override
     public void run() {
-        startedNumber.incrementAndGet();
-
-        while (startedNumber.get() < threadNumber);
+//        startedNumber.incrementAndGet();
+//
+//        while (startedNumber.get() < threadNumber);
 
         int sz = size.getAndIncrement();
         while (sz < 100) {

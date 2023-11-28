@@ -12,7 +12,7 @@ public class Main {
         for (Integer threadNumber : threadNumbers) {
             System.out.println("Results non atomic run for thread number = " + threadNumber);
             for (int i = 0; i < 10; i++) {
-                ArrayList<Integer> list = runNonAtomic(threadNumber);
+                AtomicIntegerArray list = runNonAtomic(threadNumber);
                 System.out.println(list);
             }
             System.out.println();
@@ -27,32 +27,37 @@ public class Main {
             System.out.println();
         }
 
-        compareRunningTimes();
+        for (Integer threadNumber : threadNumbers) {
+            System.out.println();
+            System.out.println("Compare for thread number " + threadNumber);
+            compareRunningTimes(threadNumber);
+            System.out.println();
+        }
     }
 
-    private static void compareRunningTimes() throws InterruptedException {
+    private static void compareRunningTimes(int threadNumber) throws InterruptedException {
         Date date = new Date();
         System.out.print("Running for non atomic: ");
-        for (int i = 0; i < 1000; i++) {
-            if (i % 50 == 1) System.out.print(i + " ");
-            runNonAtomic(10);
+        for (int i = 0; i < 10000; i++) {
+//            if (i % 50 == 1) System.out.print(i + " ");
+            runNonAtomic(threadNumber);
         }
         System.out.println();
         Date newDate = new Date();
-        long seconds = (newDate.getTime() - date.getTime()) / 1000;
-        System.out.println("Total time = " + seconds);
+        long milliSeconds = (newDate.getTime() - date.getTime());
+        System.out.println("Total time = " + milliSeconds);
         System.out.println();
 
         date = new Date();
         System.out.print("Running for atomic: ");
         for (int i = 0; i < 1000; i++) {
-            if (i % 50 == 1) System.out.print(i + " ");
-            runAtomic(10);
+//            if (i % 50 == 1) System.out.print(i + " ");
+            runAtomic(threadNumber);
         }
         System.out.println();
         newDate = new Date();
-        seconds = (newDate.getTime() - date.getTime()) / 1000;
-        System.out.println("Total time = " + seconds);
+        milliSeconds = (newDate.getTime() - date.getTime());
+        System.out.println("Total time = " + milliSeconds);
         System.out.println();
     }
 
@@ -77,8 +82,9 @@ public class Main {
         return list;
     }
 
-    private static ArrayList<Integer> runNonAtomic(int threadNumber) throws InterruptedException {
-        ArrayList<Integer> list = new ArrayList<>(100);
+    private static AtomicIntegerArray runNonAtomic(int threadNumber) throws InterruptedException {
+        SizeHolder.size = 0;
+        AtomicIntegerArray list = new AtomicIntegerArray(100);
         ArrayList<Thread> threads = new ArrayList<>();
         AtomicInteger startedNumber = new AtomicInteger(0);
 
