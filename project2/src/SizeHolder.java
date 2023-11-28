@@ -1,3 +1,6 @@
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class SizeHolder {
-    public static Integer size = 0;
+    public static int size = 0;
+    public static AtomicInteger atomicSize = new AtomicInteger(0);
 }

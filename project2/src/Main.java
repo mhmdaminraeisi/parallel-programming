@@ -3,7 +3,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
@@ -62,13 +61,12 @@ public class Main {
     }
 
     private static AtomicIntegerArray runAtomic(int threadNumber) throws InterruptedException {
-        AtomicIntegerArray list = new AtomicIntegerArray(100);
+        SizeHolder.atomicSize.set(0);
+        AtomicIntegerArray list = new AtomicIntegerArray(1000);
         ArrayList<Thread> threads = new ArrayList<>();
-        AtomicInteger startedNumber = new AtomicInteger(0);
-        AtomicInteger size = new AtomicInteger(0);
 
         for (int i = 0; i < threadNumber; i++) {
-            AtomicRunnable runnable = new AtomicRunnable(list, size, startedNumber, threadNumber);
+            AtomicRunnable runnable = new AtomicRunnable(list);
             threads.add(new Thread(runnable));
         }
         for (int i = 0; i < threadNumber; i++) {
@@ -84,12 +82,12 @@ public class Main {
 
     private static AtomicIntegerArray runNonAtomic(int threadNumber) throws InterruptedException {
         SizeHolder.size = 0;
-        AtomicIntegerArray list = new AtomicIntegerArray(100);
+        AtomicIntegerArray list = new AtomicIntegerArray(1000);
         ArrayList<Thread> threads = new ArrayList<>();
         AtomicInteger startedNumber = new AtomicInteger(0);
 
         for (int i = 0; i < threadNumber; i++) {
-            NonAtomicRunnable runnable = new NonAtomicRunnable(list, startedNumber, threadNumber);
+            NonAtomicRunnable runnable = new NonAtomicRunnable(list);
             threads.add(new Thread(runnable));
         }
         for (int i = 0; i < threadNumber; i++) {
