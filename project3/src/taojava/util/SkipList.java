@@ -44,7 +44,7 @@ public class SkipList<T extends Comparable<T>>
     private Node top;
 
     @Setter
-    private int fallNodes = 0;
+    private int skipNodes = 0;
   }
 
   public SkipList() {
@@ -67,9 +67,13 @@ public class SkipList<T extends Comparable<T>>
     int l = height - 1;
     while (l >= 0) {
       Node currNode = startNodes.get(l);
+      if (currNode.right.right == null) {
+        l --;
+        continue;
+      }
       System.out.println("level = " + l);
       while (currNode != null) {
-        System.out.print(currNode.val + " ");
+        System.out.print(currNode.val + ":" + currNode.skipNodes + "     ");
         currNode = currNode.right;
       }
       System.out.println();
@@ -128,17 +132,28 @@ public class SkipList<T extends Comparable<T>>
     Node prevNewNode = null;
     Node currNode = startNodes.get(height - 1);
 
+    int index = getIndex(val);
+    int passNodes = 0;
+
     while (currNode != null) {
-      currNode = getLastSmallerNodeInLevel(currNode, val);
+      while (!isGreaterNode(currNode.right, val)) {
+        if (currNode.left != null) passNodes += 1;
+        currNode = currNode.right;
+        passNodes += currNode.skipNodes;
+      }
 
       if (currNode.level <= level) {
         Node newNode = new Node(val, currNode.level);
+        newNode.setSkipNodes(index - passNodes - (currNode.left == null ? 0 : 1));
+        currNode.right.setSkipNodes(currNode.right.skipNodes - newNode.skipNodes);
 
         setLeftRightPointers(newNode, currNode.right);
         setLeftRightPointers(currNode, newNode);
         setBottomTopPointers(newNode, prevNewNode);
 
         prevNewNode = newNode;
+      } else {
+        currNode.right.setSkipNodes(currNode.right.skipNodes + 1);
       }
 
       currNode = currNode.bottom;
@@ -147,6 +162,21 @@ public class SkipList<T extends Comparable<T>>
     valToNode.put(val, prevNewNode);
   }
 
+  public int getIndex(T val) {
+    Node currNode = startNodes.get(height - 1);
+    int index = 0;
+
+    while (currNode != null) {
+      while (!isGreaterNode(currNode.right, val)) {
+        if (currNode.left != null) index += 1;
+        currNode = currNode.right;
+        index += currNode.skipNodes;
+      }
+      if (currNode.bottom == null && currNode.left != null) index += 1;
+      currNode = currNode.bottom;
+    }
+    return index;
+  }
   /**
    * Determine if the set contains a particular value.
    */
@@ -165,17 +195,30 @@ public class SkipList<T extends Comparable<T>>
   public void remove(T val)
   {
     if (!valToNode.containsKey(val)) return;
+    int nodeMaxLevel = 0;
     Node currNode = valToNode.get(val);
     while (currNode != null) {
+      nodeMaxLevel = currNode.level;
       Node left = currNode.left;
       Node right = currNode.right;
       setLeftRightPointers(left, right);
+      right.setSkipNodes(right.skipNodes + currNode.skipNodes);
       currNode = currNode.top;
     }
-
+    updateHigherLevelsSkipNodesAfterRemove(nodeMaxLevel, val);
     valToNode.remove(val);
   }
 
+  private void updateHigherLevelsSkipNodesAfterRemove(int maxNodeLevel, T val) {
+    Node currNode = startNodes.get(height - 1);
+    while (currNode.level > maxNodeLevel) {
+      while (!isGreaterNode(currNode.right, val)) {
+        currNode = currNode.right;
+      }
+      currNode.right.setSkipNodes(currNode.right.skipNodes - 1);
+      currNode = currNode.bottom;
+    }
+  }
   /**
    * Get the element at index i.
    *
@@ -187,13 +230,25 @@ public class SkipList<T extends Comparable<T>>
     if (i < 0 || i >= length()) {
       throw new IndexOutOfBoundsException();
     }
-    Node currNode = startNodes.get(0);
-    while (i >= 0) {
-      currNode = currNode.right;
-      i --;
+    Node currNode = startNodes.get(height - 1);
+    int passNodes = 0;
+
+    while (currNode != null) {
+      while (passNodes < i || currNode.left == null) {
+        if (currNode.left != null) passNodes += 1;
+        currNode = currNode.right;
+        passNodes += currNode.skipNodes;
+      }
+      if (passNodes == i) return currNode.val;
+
+      passNodes -= currNode.skipNodes;
+      currNode = currNode.left;
+      if (currNode.left != null) passNodes --;
+
+      currNode = currNode.bottom;
     }
 
-    return currNode.val;
+    return null;
   }
 
   /**
@@ -212,13 +267,6 @@ public class SkipList<T extends Comparable<T>>
   private void setBottomTopPointers(Node bottom, Node top) {
     if (bottom != null) bottom.setTop(top);
     if (top != null) top.setBottom(bottom);
-  }
-
-  private Node getLastSmallerNodeInLevel(Node currNode, T val) {
-    while (!isGreaterNode(currNode.right, val)) {
-      currNode = currNode.right;
-    }
-    return currNode;
   }
 
   private boolean isGreaterNode(Node node, T val) {

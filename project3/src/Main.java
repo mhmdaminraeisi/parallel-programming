@@ -12,10 +12,21 @@ public class Main {
 //        skipList.add(7);
 //        skipList.add(20);
         int[] counter = new int[100];
-
-        for (int i = 0; i < 1024; i++) {
-            skipList.add(i);
+        Random random = new Random();
+        int khar = 0;
+        for (int i = 0; i < 10; i++) {
+            int rnd = random.nextInt(100);
+            if (i == 5) khar = rnd;
+            skipList.add(rnd);
         }
-//        skipList.print();
+        skipList.print();
+        System.out.println("#############################");
+        System.out.println("khar = " + khar);
+//        skipList.remove(khar);
+        skipList.print();
+
+        System.out.println(skipList.get(5));
+        System.out.println(skipList.get(0));
+        System.out.println(skipList.get(7));
     }
 }
