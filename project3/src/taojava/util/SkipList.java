@@ -17,17 +17,9 @@ import java.util.Iterator;
 public class SkipList<T extends Comparable<T>>
     implements SortedList<T>
 {
-  // +--------+----------------------------------------------------------
-  // | Fields |
-  // +--------+
   private final int height = 5;
   private int size = 0;
   private final ArrayList<Node> startNodes = new ArrayList<>();
-//  private
-
-  // +------------------+------------------------------------------------
-  // | Internal Classes |
-  // +------------------+
 
   /**
    * Nodes for skip lists.
@@ -35,10 +27,6 @@ public class SkipList<T extends Comparable<T>>
 
   public class Node
   {
-    // +--------+--------------------------------------------------------
-    // | Fields |
-    // +--------+
-
     /**
      * The value stored in the node.
      */
@@ -63,11 +51,7 @@ public class SkipList<T extends Comparable<T>>
       this.right = right;
       this.bottom = bottom;
     }
-  } // class Node
-
-  // +--------------+----------------------------------------------------
-  // | Constructors |
-  // +--------------+
+  }
 
   public SkipList() {
     Node prevRight = null;
@@ -97,14 +81,6 @@ public class SkipList<T extends Comparable<T>>
     }
   }
 
-  // +-------------------------+-----------------------------------------
-  // | Internal Helper Methods |
-  // +-------------------------+
-
-  // +-----------------------+-------------------------------------------
-  // | Methods from Iterable |
-  // +-----------------------+
-
   /**
    * Return a read-only iterator (one that does not implement the remove
    * method) that iterates the values of the list from smallest to
@@ -115,7 +91,6 @@ public class SkipList<T extends Comparable<T>>
 
     return new Iterator<T>()
     {
-      // An underlying iterator.
       private Node currNode = startNodes.get(0).right;
 
       public T next()
@@ -126,27 +101,23 @@ public class SkipList<T extends Comparable<T>>
         }
         currNode = currNode.right;
         return currNode.val;
-      } // next()
+      }
 
       public boolean hasNext()
       {
         if (currNode.isRight) return false;
         if (currNode.right.isRight) return false;
         return true;
-      } // hasNext()
+      }
 
       public void remove()
       {
         if (currNode != null && currNode.val != null) {
           SkipList.this.remove(currNode.val);
         }
-      } // remove()
-    }; // new Iterator<T>
-  } // iterator()
-
-  // +------------------------+------------------------------------------
-  // | Methods from SimpleSet |
-  // +------------------------+
+      }
+    };
+  }
 
   /**
    * Add a value to the set.
@@ -174,8 +145,7 @@ public class SkipList<T extends Comparable<T>>
     }
 
     size ++;
-    // STUB
-  } // add(T val)
+  }
 
   /**
    * Determine if the set contains a particular value.
@@ -184,7 +154,7 @@ public class SkipList<T extends Comparable<T>>
   {
     Node node = findFirstOccurrence(val);
     return node != null;
-  } // contains(T)
+  }
 
   /**
    * Remove an element from the set.
@@ -204,13 +174,8 @@ public class SkipList<T extends Comparable<T>>
       right.left = left;
       currNode = currNode.bottom;
     }
-    // STUB
     size --;
-  } // remove(T)
-
-  // +--------------------------+----------------------------------------
-  // | Methods from SemiIndexed |
-  // +--------------------------+
+  }
 
   /**
    * Get the element at index i.
@@ -230,7 +195,7 @@ public class SkipList<T extends Comparable<T>>
     }
 
     return currNode.val;
-  } // get(int)
+  }
 
   /**
    * Determine the number of elements in the collection.
@@ -238,7 +203,7 @@ public class SkipList<T extends Comparable<T>>
   public int length()
   {
     return size;
-  } // length()
+  }
 
   private Node findFirstOccurrence(T val) {
     Node currNode = startNodes.get(height - 1);
@@ -280,4 +245,4 @@ public class SkipList<T extends Comparable<T>>
     return currLevel;
   }
 
-} // class SkipList<T>
+}
